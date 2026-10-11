@@ -920,7 +920,7 @@ return p + `The buyer has already answered every question. Reply to their latest
 }
 p += `The question on the buyer's screen right now is: "${q.ask}"\n`;
 if (q.options) p += `The tap-to-answer buttons under it are: ${q.options.join(', ')}.\n`;
-p += `\nDecide which case the buyer's latest message is:\n`;
+p += `\nDecide which case the buyer's latest message is. A message that asks you something is always case B, even if it also hints at an answer.\n`;
 if (q.options) {
 p += `A) It answers that question, even if it is not one of the buttons. Reply with exactly the single word ANSWERED and nothing else.\n`;
 } else if (q.key === 'name') {
@@ -994,7 +994,8 @@ const t = norm(text);
 if (!t) return null;
 const exact = options.filter(function (o) { return norm(o) === t; });
 if (exact.length === 1) return exact[0];
-if (t.length < 3) return null;
+// A question, or a longer sentence, goes to Capt. Bob instead of being guessed at.
+if (t.length < 3 || /\?/.test(text) || t.split(' ').length > 4) return null;
 const near = options.filter(function (o) {
 const n = norm(o);
 return (' ' + t + ' ').indexOf(' ' + n + ' ') !== -1 || n.indexOf(t) === 0;
