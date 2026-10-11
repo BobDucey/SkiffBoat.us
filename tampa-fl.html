@@ -1126,6 +1126,8 @@ if (q.key === 'email') leadEmail = value;
 else if (q.key === 'zip') leadZip = value;
 else if (q.key === 'name') buyerFirstName = value;
 step++;
+// Skip email or zip if the buyer already gave it (for example through the sign-up box).
+while (QUESTIONS[step] && ((QUESTIONS[step].key === 'email' && leadEmail) || (QUESTIONS[step].key === 'zip' && leadZip))) step++;
 clearQuickReplies();
 const next = QUESTIONS[step];
 if (!next) { finishChat(); return; }
@@ -1227,7 +1229,7 @@ matchResultShown = true;
 
 const metroName = String(SOURCE_METRO || '').split(',')[0].trim();
 const areaText = metroName ? `the ${metroName} area` : 'your area';
-const boatText = (selectedBoatTypes && selectedBoatTypes.length) ? selectedBoatTypes.join(' or ') : 'the boat you want';
+const boatText = BOAT_TYPE;
 const thanksText = buyerFirstName ? `Thanks, ${buyerFirstName} — I have everything I need.` : 'Thanks — I have everything I need.';
 
 const subline = realMatchFound
