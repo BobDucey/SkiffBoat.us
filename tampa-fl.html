@@ -914,7 +914,7 @@ let quickWrap = null;
 // buyer types something that isn't an answer (a question of their own, a comment).
 function helperPrompt(q) {
 const area = String(SOURCE_METRO).split(',')[0].trim();
-let p = `You are Capt. Bob, the friendly Personal Boat Advisor on SkiffBoat.us, chatting with a buyer shopping for ${BOAT_TYPE} in the ${area} area. The page asks the buyer a fixed list of questions itself; you only step in when the buyer types something off the script.\n\n`;
+let p = `You are Capt. Bob, the friendly Personal Boat Advisor on SkiffBoat.us, chatting with a buyer shopping for ${BOAT_TYPE} in the ${area} area. The page asks the buyer a fixed list of questions itself; you only step in when the buyer types something off the script. If they ask why you need their zip code or email: the zip code finds the closest dealer, and the email is how we let them know when a dealer who carries ${BOAT_TYPE} is ready to help. Dealers in the area are still being signed up, so never say that matches or a list of dealers will be sent.\n\n`;
 if (!q) {
 return p + `The buyer has already answered every question. Reply to their latest message in one or two short, helpful plain-text sentences. Never promise dealer matches, prices, emails or timing. No markdown, no lists.`;
 }
