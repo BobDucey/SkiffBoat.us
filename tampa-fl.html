@@ -647,6 +647,11 @@ html:not(.embedded) .hero h1{font-size:22px;}
 @media (hover:hover){.quick-reply:hover{background:var(--teal);color:#06231d;border-color:var(--teal);}}
 .quick-reply:focus-visible{outline:3px solid rgba(41,214,182,0.5);outline-offset:2px;}
 @media (min-width: 980px){.quick-replies{max-width:460px;}}
+/* On phones a tap question shows only the question and its answers: no typing row. */
+@media (max-width: 979px){
+html:not(.embedded) .chat-foot.tap-only{display:none;}
+html:not(.embedded) .eyebrow{display:none;}
+}
 /* --- end tap-to-answer chat --- */
 </style>
 <script>if(window.parent!==window)document.documentElement.classList.add('embedded');</script>
@@ -692,7 +697,7 @@ html:not(.embedded) .hero h1{font-size:22px;}
 
 <div class="chat-body" id="chatBody"><div class="bubble assistant"><span class="bubble-label">Capt. Bob</span>Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! Are you looking for a new boat or a used one?</div></div>
 
-<div class="chat-foot">
+<div class="chat-foot tap-only">
 <div class="input-row">
 <button class="icon-btn mic" id="micBtn" title="Speak instead of typing">🎤</button>
 <input type="text" id="chatInput" placeholder="Or type here" autocomplete="off">
@@ -765,6 +770,7 @@ We'll use this to connect you with a local dealer. No spam, unsubscribe anytime.
 const chatBody = document.getElementById('chatBody');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
+const chatFoot = document.querySelector('.chat-foot');
 const micBtn = document.getElementById('micBtn');
 const voiceToggle = document.getElementById('voiceToggle');
 const leadOverlay = document.getElementById('leadOverlay');
@@ -952,6 +958,7 @@ chatInput.placeholder = hint;
 
 function showQuestionUI(q, quiet) {
 clearQuickReplies();
+chatFoot.classList.toggle('tap-only', !!(q && q.options));
 setInputMode(q ? (q.options ? 'tap' : q.key) : null);
 if (q && q.options) {
 const wrap = document.createElement('div');
@@ -974,11 +981,11 @@ chatBody.scrollTop = chatBody.scrollHeight;
 if (!quiet) keepInView();
 }
 
-// On a phone the chat card grows with the page, so bring the answer area into view.
+// On a phone the chat card grows with the page, so bring the bottom of the card into view.
 function keepInView() {
 if (window.parent !== window) return;
 try {
-const foot = document.querySelector('.chat-foot');
+const foot = document.querySelector('.chat-card');
 if (!foot) return;
 const vv = window.visualViewport;
 const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
@@ -1079,7 +1086,7 @@ const next = QUESTIONS[step];
 if (!next) { finishChat(); return; }
 if (!next.options) {
 // Switch the keyboard (email, numbers, name) while we are still inside the buyer's tap.
-try { chatInput.blur(); setInputMode(next.key); chatInput.focus(); } catch (e) {}
+try { chatFoot.classList.remove('tap-only'); chatInput.blur(); setInputMode(next.key); chatInput.focus(); } catch (e) {}
 }
 queueLeadSave();
 busy = true;
