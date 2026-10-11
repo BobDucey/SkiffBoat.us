@@ -641,6 +641,7 @@ html:not(.embedded) .hero h1{font-size:22px;}
 /* --- end phone layout fix --- */
 
 /* --- tap-to-answer chat --- */
+.send-label{display:none;}
 .quick-replies{align-self:stretch;display:grid;grid-template-columns:1fr;gap:8px;margin-top:2px;}
 .quick-reply{width:100%;min-height:50px;padding:12px 10px;border-radius:12px;border:1.5px solid rgba(41,214,182,0.55);background:rgba(41,214,182,0.10);color:#fff;font-size:16px;font-weight:700;font-family:inherit;line-height:1.2;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .12s ease,color .12s ease;}
 .quick-reply:active{background:var(--teal);color:#06231d;border-color:var(--teal);}
@@ -672,7 +673,14 @@ html:not(.embedded) .chat-body .bubble.current .bubble-label{font-size:14px;marg
 html:not(.embedded) .quick-replies{flex:1;display:flex;flex-direction:column;gap:12px;margin-top:0;}
 html:not(.embedded) .quick-reply{flex:1 1 0;min-height:66px;max-height:132px;font-size:23px;border-radius:16px;border-width:2px;}
 html:not(.embedded) .chat-foot{border-top:none;padding:0 16px 16px;}
-html:not(.embedded) .input-row input{font-size:19px;}
+/* Typed questions on phones: full-width text box with a full-width Submit button under it. */
+html:not(.embedded) .input-row{flex-direction:column;align-items:stretch;gap:12px;}
+html:not(.embedded) .icon-btn.mic{display:none;}
+html:not(.embedded) .input-row input{flex:none;width:100%;font-size:19px;}
+html:not(.embedded) .icon-btn.send{width:100%;height:64px;border-radius:16px;font-size:23px;}
+html:not(.embedded) .icon-btn.send:hover{transform:none;}
+html:not(.embedded) .send-icon{display:none;}
+html:not(.embedded) .send-label{display:inline;}
 }
 /* --- end tap-to-answer chat --- */
 </style>
@@ -723,7 +731,7 @@ html:not(.embedded) .input-row input{font-size:19px;}
 <div class="input-row">
 <button class="icon-btn mic" id="micBtn" title="Speak instead of typing">🎤</button>
 <input type="text" id="chatInput" placeholder="Or type here" autocomplete="off">
-<button class="icon-btn send" id="sendBtn" title="Send">➤</button>
+<button class="icon-btn send" id="sendBtn" title="Send"><span class="send-icon">➤</span><span class="send-label">Submit</span></button>
 </div>
 </div>
 </div>
