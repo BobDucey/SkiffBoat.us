@@ -639,6 +639,15 @@ html:not(.embedded) .chat-card{height:auto;max-height:none;}
 html:not(.embedded) .hero h1{font-size:22px;}
 }
 /* --- end phone layout fix --- */
+
+/* --- tap-to-answer chat --- */
+.quick-replies{align-self:stretch;display:grid;grid-template-columns:1fr;gap:8px;margin-top:2px;}
+.quick-reply{width:100%;min-height:50px;padding:12px 10px;border-radius:12px;border:1.5px solid rgba(41,214,182,0.55);background:rgba(41,214,182,0.10);color:#fff;font-size:16px;font-weight:700;font-family:inherit;line-height:1.2;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .12s ease,color .12s ease;}
+.quick-reply:active{background:var(--teal);color:#06231d;border-color:var(--teal);}
+@media (hover:hover){.quick-reply:hover{background:var(--teal);color:#06231d;border-color:var(--teal);}}
+.quick-reply:focus-visible{outline:3px solid rgba(41,214,182,0.5);outline-offset:2px;}
+@media (min-width: 980px){.quick-replies{max-width:460px;}}
+/* --- end tap-to-answer chat --- */
 </style>
 <script>if(window.parent!==window)document.documentElement.classList.add('embedded');</script>
 <!-- Capt. Bob conversion tracking (Google Ads) -->
@@ -681,12 +690,12 @@ html:not(.embedded) .hero h1{font-size:22px;}
 </div>
 </div>
 
-<div class="chat-body" id="chatBody"><div class="bubble assistant"><span class="bubble-label">Capt. Bob</span>Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! What's your first name?</div></div>
+<div class="chat-body" id="chatBody"><div class="bubble assistant"><span class="bubble-label">Capt. Bob</span>Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! Are you looking for a new boat or a used one?</div></div>
 
 <div class="chat-foot">
 <div class="input-row">
 <button class="icon-btn mic" id="micBtn" title="Speak instead of typing">🎤</button>
-<input type="text" id="chatInput" placeholder="First Name Please" autocomplete="off">
+<input type="text" id="chatInput" placeholder="Or type here" autocomplete="off">
 <button class="icon-btn send" id="sendBtn" title="Send">➤</button>
 </div>
 </div>
@@ -765,29 +774,30 @@ const leadClose = document.getElementById('leadClose');
 const SYSTEM_PROMPT = `You are Capt. Bob, the AI buying assistant on SkiffBoat.us, part of the AI Boat Leads network.
 You talk to prospective boat buyers the way a great, low-pressure salesperson would: warm, brief, one question at a time.
 
-You must ask these 10 questions IN THIS EXACT ORDER, one per reply, never skipping ahead or asking two at once. Use the wording shown, word for word:
-1. Please select the type you're interested in below.
-2. Are you looking for a new boat or a used one?
-3. How do you plan to use it — fishing, cruising or just general recreation?
-4. What type of water will you be on — lakes, rivers, bays or offshore?
-5. How many people would you typically take out?
-6. Will you be keeping the boat docked at the water, or will you be trailering it?
-7. What's your budget for the boat?
-8. When are you planning to make your purchase — are you ready to buy soon or in the early research phase?
-9. I'll need your zip code to find the closest dealer.
-10. And last thing — I'll need your email to send your dealer matches.
+The buyer is on a page about Skiff Boats, so you already know the boat type. Never ask which type of boat they want.
+
+Your opening message already asked question 1. Ask the remaining questions IN THIS EXACT ORDER, one per reply, never skipping ahead or asking two at once. Use the wording shown, word for word:
+1. Are you looking for a new boat or a used one? (already asked in your opening message)
+2. How do you plan to use it?
+3. What type of water will you be on?
+4. How many people would you typically take out?
+5. Will you keep the boat docked at the water, or trailer it?
+6. What's your budget for the boat?
+7. When are you planning to buy?
+8. I'll need your email to send your dealer matches.
+9. And your zip code, to find the closest dealer.
+10. Last thing — what's your first name?
 
 Rules:
-- Each reply is the next question from the list above and nothing else: no praise, no comment on the buyer's previous answer, no extra sentences. The only change you may make to the wording is adding the buyer's first name, as described in the next rule.
-- Personalize with the buyer's first name where it reads naturally, at the start or the end of the question (for example "Bob, are you looking for a new boat or a used one?" or "What's your budget for the boat, Bob?"). Do this in roughly every second or third question, not in every one, and never force it where it sounds awkward.
-- Question 1 (boat type): the interface automatically shows the buyer a full selector right after this message, so do not name or describe any specific boat type or category yourself. End that specific reply with a new final line containing exactly: SHOW_BOAT_TYPES
-- That SHOW_BOAT_TYPES line must be the very last line of that first reply, alone, with nothing else on it, and must only ever appear once, on that first question.
+- The page shows the buyer tap-to-answer buttons under questions 1 to 7, so never list or suggest answer choices yourself.
+- Each reply is the next question from the list above and nothing else: no praise, no comment on the buyer's previous answer, no extra sentences.
+- You only learn the buyer's first name at question 10, so do not use a name before the final thank-you.
 - Do not reorder, combine or skip questions, even if the buyer's earlier answer seems to partly cover a later question.
-- If the buyer asks you something, or gives a reply that does not answer the question, respond in one short sentence and then ask the same question again.
+- If the buyer asks you something, or gives a reply that does not answer the question, respond in one short sentence and then ask the same question again, word for word.
 - Each reply is max 2 sentences.
-- Question 9 (zip code): if what they give you isn't a valid 5-digit zip code, politely ask them to double-check it and send it again before moving on.
-- Question 10 (email): if what they give you doesn't look like a valid email address, politely ask them to double-check it and send it again before moving on.
-- Once all 10 questions are answered, reply only with a short thank-you saying you have everything you need (for example "Thanks, Bob — I have everything I need."). Do not promise matches, dealers, emails or any timing — the page shows the buyer what happens next right after your message. Then add a new final line containing exactly: MATCH_READY
+- Question 8 (email): if what they give you doesn't look like a valid email address, politely ask them to double-check their email and send it again before moving on.
+- Question 9 (zip code): if what they give you isn't a valid 5-digit zip code, politely ask them to double-check their zip code and send it again before moving on.
+- Once all 10 questions are answered, reply only with a short thank-you that uses their first name and says you have everything you need (for example "Thanks, Bob — I have everything I need."). Do not promise matches, dealers, emails or any timing — the page shows the buyer what happens next right after your message. Then add a new final line containing exactly: MATCH_READY
 - That MATCH_READY line must be the very last line of your reply, alone, with nothing else on it. Never explain it to the user, never format it, and only include it the moment the conversation is truly complete.
 - Keep total replies short. No markdown, no bullet lists, just plain conversational text.`;
 
@@ -799,7 +809,7 @@ let voiceOn = false;
 let recognizing = false;
 let leadCaptured = false;
 let leadRecordId = null;
-let selectedBoatTypes = [];
+let selectedBoatTypes = ["Skiff Boats"];
 let leadEmail = null;
 let leadZip = null;
 let buyerFirstName = null;
@@ -957,32 +967,126 @@ console.error('Network error saving lead:', e);
 }
 }
 
+// ---- tap-to-answer: which question is on screen, and its buttons ----
+const QUICK_REPLIES = {
+newused: ['New', 'Used', 'Both'],
+use: ['Fishing', 'Cruising', 'General recreation'],
+water: ['Lakes', 'Rivers', 'Bays', 'Offshore'],
+people: ['1–2', '3–5', '6–8', '9 or more'],
+dock: ['Docked', 'Trailered'],
+budget: ['Under $25K', '$25K–$50K', '$50K–$100K', '$100K–$250K', 'Over $250K'],
+timing: ['Within 30 days', '1–3 months', '3–6 months', 'Just researching']
+};
+const QUESTION_KEYS = [
+['newused', ['new boat or a used one', 'new or used']],
+['use', ['plan to use it']],
+['water', ['type of water']],
+['people', ['how many people']],
+['dock', ['docked', 'trailer it']],
+['budget', ['budget']],
+['timing', ['planning to buy']],
+['email', ['email']],
+['zip', ['zip']],
+['name', ['first name']]
+];
+let currentQuestion = null;
+let quickWrap = null;
+
+// The question being asked is the one whose wording appears last in the reply.
+function detectQuestion(text) {
+const t = String(text || '').toLowerCase();
+let best = null;
+let bestIdx = -1;
+QUESTION_KEYS.forEach(function (pair) {
+pair[1].forEach(function (phrase) {
+const i = t.lastIndexOf(phrase);
+if (i > bestIdx) { bestIdx = i; best = pair[0]; }
+});
+});
+return best;
+}
+
+function clearQuickReplies() {
+if (quickWrap) { quickWrap.remove(); quickWrap = null; }
+}
+
+function setInputMode(q) {
+let type = 'text', mode = 'text', auto = 'off', hint = 'Or type here';
+if (q === 'email') { type = 'email'; mode = 'email'; auto = 'email'; hint = 'Your email'; }
+else if (q === 'zip') { mode = 'numeric'; auto = 'postal-code'; hint = 'Zip code'; }
+else if (q === 'name') { auto = 'given-name'; hint = 'First name'; }
+else if (!q) { hint = 'Type a message'; }
+try { chatInput.type = type; } catch (e) {}
+chatInput.setAttribute('inputmode', mode);
+chatInput.setAttribute('autocomplete', auto);
+chatInput.placeholder = hint;
+}
+
+function showQuestionUI(q, quiet) {
+currentQuestion = q;
+clearQuickReplies();
+setInputMode(q);
+const options = QUICK_REPLIES[q];
+if (options) {
+const wrap = document.createElement('div');
+wrap.className = 'quick-replies';
+const longest = Math.max.apply(null, options.map(function (o) { return o.length; }));
+if (options.length <= 3 && longest <= 9) wrap.style.gridTemplateColumns = 'repeat(' + options.length + ', 1fr)';
+else if (options.length === 4 && longest <= 10) wrap.style.gridTemplateColumns = '1fr 1fr';
+options.forEach(function (label) {
+const btn = document.createElement('button');
+btn.type = 'button';
+btn.className = 'quick-reply';
+btn.textContent = label;
+btn.addEventListener('click', function () {
+if (sendBtn.disabled) return;
+doSend(label);
+});
+wrap.appendChild(btn);
+});
+chatBody.appendChild(wrap);
+quickWrap = wrap;
+}
+chatBody.scrollTop = chatBody.scrollHeight;
+if (!quiet) keepInView();
+}
+
+// On a phone the chat card grows with the page, so bring the answer area into view.
+function keepInView() {
+if (window.parent !== window) return;
+try {
+const foot = document.querySelector('.chat-foot');
+if (foot && foot.getBoundingClientRect().bottom > window.innerHeight) {
+foot.scrollIntoView({ block: 'end', behavior: 'smooth' });
+}
+} catch (e) {}
+}
+
+// Keep the typed answers we need for the lead as they are given.
+function captureAnswer(text) {
+const t = String(text || '').trim();
+if (currentQuestion === 'email') {
+if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) leadEmail = t;
+} else if (currentQuestion === 'zip') {
+const m = t.match(/\b\d{5}\b/);
+if (m) leadZip = m[0];
+} else if (currentQuestion === 'name') {
+const w = t.split(/\s+/)[0].replace(/[^a-zA-Z'-]/g, '');
+if (w) buyerFirstName = w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+}
+if (leadEmail && leadZip) leadCaptured = true;
+}
+
 function trySend(text) {
 if (!text || !text.trim()) return;
-if (!buyerFirstName) {
-setFirstName(text);
-return;
-}
-doSend(text);
-}
-
-function setFirstName(text) {
-const firstWord = text.trim().split(/\s+/)[0].replace(/[^a-zA-Z'-]/g, '');
-if (!firstWord) {
-chatInput.value = '';
-addBubble('assistant', "Sorry, I didn't catch that — what's your first name?");
-return;
-}
-buyerFirstName = firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
-activeSystemPrompt = `The buyer just told you their first name is ${buyerFirstName}. Start your very next reply with a short greeting by name (for example "Nice to meet you, ${buyerFirstName}!") and then ask question 1 from the list below. After that, follow the first-name rule below all the way through to the final MATCH_READY message.
-
-` + SYSTEM_PROMPT;
-chatInput.placeholder = 'Tell us about the skiff boat you need…';
 doSend(text);
 }
 
 async function doSend(text) {
 if (!text || !text.trim()) return;
+const askedQuestion = currentQuestion;
+captureAnswer(text);
+clearQuickReplies();
 chatInput.value = '';
 sendBtn.disabled = true;
 addBubble('user', text);
@@ -991,7 +1095,7 @@ userTurns++;
 
 const typingEl = addTyping();
 let matchReady = false;
-let showBoatTypes = false;
+let nextQuestion = askedQuestion;
 try {
 const rawReply = await callClaude(messages, activeSystemPrompt);
 typingEl.remove();
@@ -1002,21 +1106,19 @@ matchReady = true;
 lines.pop();
 }
 if (lines.length && lines[lines.length - 1].trim() === 'SHOW_BOAT_TYPES') {
-showBoatTypes = true;
 lines.pop();
 }
 const reply = lines.join('\n').trim();
 addBubble('assistant', reply);
 messages.push({ role: 'assistant', content: reply });
 speak(reply);
-if (showBoatTypes) {
-addBoatPicker();
-}
+nextQuestion = matchReady ? null : (detectQuestion(reply) || askedQuestion);
 } catch (e) {
 typingEl.remove();
 addBubble('assistant', "Having trouble connecting right now — mind trying again in a moment?");
 }
 sendBtn.disabled = false;
+showQuestionUI(nextQuestion);
 saveLeadProgress();
 if (matchReady) {
 if (!leadCaptured) {
@@ -1118,6 +1220,7 @@ const text = `${headline} ${subline}`;
 addBubble('assistant', text);
 messages.push({ role: 'assistant', content: text });
 speak(text);
+keepInView();
 }
 
 function escapeHtml(s) {
@@ -1204,16 +1307,13 @@ return;
 const toSend = pendingText;
 pendingText = null;
 if (toSend) {
-if (!buyerFirstName) {
-setFirstName(toSend);
-} else {
 doSend(toSend);
-}
 }
 });
 
 // opening message
-messages.push({ role: 'assistant', content: "Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! What's your first name?" });
+messages.push({ role: 'assistant', content: "Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! Are you looking for a new boat or a used one?" });
+showQuestionUI('newused', true);
 })();
 </script>
 
