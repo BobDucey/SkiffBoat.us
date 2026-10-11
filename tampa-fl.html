@@ -659,6 +659,20 @@ html:not(.embedded) .wave-wrap,
 html:not(.embedded) footer{display:none;}
 html:not(.embedded),
 html:not(.embedded) body{background:var(--bg-dark);}
+/* Phones use the full display: one question at a time in large type, big answers below it. */
+html:not(.embedded) .hero{padding:10px;min-height:88vh;min-height:100dvh;display:flex;flex-direction:column;}
+html:not(.embedded) .hero-grid{flex:1;display:flex;flex-direction:column;gap:0;width:100%;}
+html:not(.embedded) .hero-grid > div:first-child{display:none;}
+html:not(.embedded) .chat-card{flex:1;}
+html:not(.embedded) .chat-body{flex:1;gap:14px;padding:16px;}
+html:not(.embedded) .chat-card.typed-step .chat-body{flex:0 0 auto;}
+html:not(.embedded) .chat-body .bubble:not(.current):not(.typing){display:none;}
+html:not(.embedded) .chat-body .bubble.current{max-width:100%;align-self:stretch;font-size:23px;line-height:1.4;padding:18px 18px 20px;}
+html:not(.embedded) .chat-body .bubble.current .bubble-label{font-size:14px;margin-bottom:8px;}
+html:not(.embedded) .quick-replies{flex:1;display:flex;flex-direction:column;gap:12px;margin-top:0;}
+html:not(.embedded) .quick-reply{flex:1 1 0;min-height:66px;max-height:132px;font-size:23px;border-radius:16px;border-width:2px;}
+html:not(.embedded) .chat-foot{border-top:none;padding:0 16px 16px;}
+html:not(.embedded) .input-row input{font-size:19px;}
 }
 /* --- end tap-to-answer chat --- */
 </style>
@@ -703,7 +717,7 @@ html:not(.embedded) body{background:var(--bg-dark);}
 </div>
 </div>
 
-<div class="chat-body" id="chatBody"><div class="bubble assistant"><span class="bubble-label">Capt. Bob</span>Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! Are you looking for a new boat or a used one?</div></div>
+<div class="chat-body" id="chatBody"><div class="bubble assistant current"><span class="bubble-label">Capt. Bob</span>Hi, I'm Capt. Bob, your Personal Boat Advisor for Skiff Boats in Tampa! Are you looking for a new boat or a used one?</div></div>
 
 <div class="chat-foot tap-only">
 <div class="input-row">
@@ -779,6 +793,7 @@ const chatBody = document.getElementById('chatBody');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
 const chatFoot = document.querySelector('.chat-foot');
+const chatCard = document.querySelector('.chat-card');
 const micBtn = document.getElementById('micBtn');
 const voiceToggle = document.getElementById('voiceToggle');
 const leadOverlay = document.getElementById('leadOverlay');
@@ -797,10 +812,17 @@ let leadZip = null;
 let buyerFirstName = null;
 let pendingText = null;
 
+// On phones only the newest message from Capt. Bob is shown, one question at a time.
+function clearCurrent() {
+chatBody.querySelectorAll('.bubble.current').forEach(function (el) { el.classList.remove('current'); });
+}
+
 function addBubble(role, text) {
 const b = document.createElement('div');
 b.className = 'bubble ' + role;
 if (role === 'assistant') {
+clearCurrent();
+b.classList.add('current');
 const label = document.createElement('span');
 label.className = 'bubble-label';
 label.textContent = 'Capt. Bob';
@@ -813,6 +835,7 @@ return b;
 }
 
 function addTyping() {
+clearCurrent();
 const b = document.createElement('div');
 b.className = 'bubble assistant typing';
 b.innerHTML = '<span></span><span></span><span></span>';
@@ -967,6 +990,7 @@ chatInput.placeholder = hint;
 function showQuestionUI(q, quiet) {
 clearQuickReplies();
 chatFoot.classList.toggle('tap-only', !!(q && q.options));
+chatCard.classList.toggle('typed-step', !(q && q.options));
 setInputMode(q ? (q.options ? 'tap' : q.key) : null);
 if (q && q.options) {
 const wrap = document.createElement('div');
@@ -989,10 +1013,15 @@ chatBody.scrollTop = chatBody.scrollHeight;
 if (!quiet) keepInView();
 }
 
-// On a phone the chat card grows with the page, so bring the bottom of the card into view.
+// Phones show one question per screen, so go back to the top of it for each new question.
+// (While the buyer is typing, the phone keeps the text box in view by itself.)
 function keepInView() {
 if (window.parent !== window) return;
 try {
+if (window.matchMedia && window.matchMedia('(max-width: 979px)').matches) {
+if (document.activeElement !== chatInput) window.scrollTo(0, 0);
+return;
+}
 const foot = document.querySelector('.chat-card');
 if (!foot) return;
 const vv = window.visualViewport;
@@ -1094,7 +1123,7 @@ const next = QUESTIONS[step];
 if (!next) { finishChat(); return; }
 if (!next.options) {
 // Switch the keyboard (email, numbers, name) while we are still inside the buyer's tap.
-try { chatFoot.classList.remove('tap-only'); chatInput.blur(); setInputMode(next.key); chatInput.focus(); } catch (e) {}
+try { chatFoot.classList.remove('tap-only'); chatCard.classList.add('typed-step'); chatInput.blur(); setInputMode(next.key); chatInput.focus(); } catch (e) {}
 }
 queueLeadSave();
 busy = true;
