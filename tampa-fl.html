@@ -651,6 +651,14 @@ html:not(.embedded) .hero h1{font-size:22px;}
 @media (max-width: 979px){
 html:not(.embedded) .chat-foot.tap-only{display:none;}
 html:not(.embedded) .eyebrow{display:none;}
+/* Phones show only the question and its answers: no site bar, headline, chat header or footer. */
+html:not(.embedded) .nav,
+html:not(.embedded) .hero h1,
+html:not(.embedded) .chat-head,
+html:not(.embedded) .wave-wrap,
+html:not(.embedded) footer{display:none;}
+html:not(.embedded),
+html:not(.embedded) body{background:var(--bg-dark);}
 }
 /* --- end tap-to-answer chat --- */
 </style>
